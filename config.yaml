@@ -1,0 +1,22 @@
+app:
+  title: Home
+  company_name: MyCompany
+  host: "127.0.0.1"
+  default_port: 14299
+  2nd_try_port: 14290
+  height: 720
+  width: 1024
+  min_height: 720
+  min_width: 1024
+  frameless: false
+  on_top: false
+  resizable: true
+  exported_app_name: Home
+  enable_tray: true
+  easy_drag: true
+  tray_icon_path: configs/tray.png
+
+pyinstaller:
+  icon_path: configs/appicon.ico
+  bundle_identifier: net.tabaqat.home
+  version: 0.1.0

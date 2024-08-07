@@ -1,0 +1,9 @@
+name: geo-env-master
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - defaults:python==3.11.7
+  - defaults:pip==24.2
+  - pip:
+      - -r requirements.txt
