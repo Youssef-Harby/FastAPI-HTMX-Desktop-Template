@@ -7,7 +7,7 @@ on:
   workflow_dispatch: # Allows manual triggering from the GitHub UI
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
 
     steps:
@@ -22,24 +22,81 @@ jobs:
           cache-environment: true
           post-cleanup: all
 
-      - name: Upgrade Deppendencies
+      - name: Upgrade Dependencies
         run: micromamba run -n geo-env-master pip install --upgrade --no-deps --force-reinstall numpy pyinstaller
 
       - name: Package EXE Application
         run: micromamba run -n geo-env-master pyinstaller main.spec
 
-      - name: Rename main.exe
+      - name: Rename run.exe
         run: |
-          mv dist/main.exe dist/App-${{ github.ref_name }}.exe
+          mv dist/run.exe dist/run-${{ github.ref_name }}.exe
 
-      - name: Create zip file
-        run: Compress-Archive -Path dist\satband-*.exe, README.md, config.yaml, geometry.geojson -DestinationPath satband-${{ github.ref_name }}.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: dist/run-${{ github.ref_name }}.exe
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Micromamba
+        uses: mamba-org/setup-micromamba@v1.9.0
+        with:
+          micromamba-version: "1.5.8-0"
+          environment-file: environment.yml
+          init-shell: bash
+          cache-environment: true
+          post-cleanup: all
+
+      - name: Upgrade Dependencies
+        run: micromamba run -n geo-env-master pip install --upgrade --no-deps --force-reinstall numpy pyinstaller
+
+      - name: Package macOS Application
+        run: micromamba run -n geo-env-master pyinstaller main.spec
+
+      - name: Rename run.app
+        run: |
+          mv dist/run.app dist/run-${{ github.ref_name }}.app
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-build
+          path: dist/run-${{ github.ref_name }}.app
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-macos]
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-build
+          path: .
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: macos-build
+          path: .
+
+      - name: Create Windows zip file
+        run: Compress-Archive -Path run-${{ github.ref_name }}.exe -DestinationPath run-${{ github.ref_name }}-windows.zip
+
+      - name: Create macOS zip file
+        run: zip -r run-${{ github.ref_name }}-macos.zip run-${{ github.ref_name }}.app
 
       - name: Release
         uses: softprops/action-gh-release@v2.0.8
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            satband-${{ github.ref_name }}.zip
+            run-${{ github.ref_name }}-windows.zip
+            run-${{ github.ref_name }}-macos.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
