@@ -86,14 +86,10 @@ jobs:
           name: macos-build
           path: .
 
-      - name: Debug artifacts
+      - name: List all files in the current directory
         run: |
-          echo "Listing files in the current directory:"
-          ls -l
-          echo "Checking for Windows executable:"
-          ls -l run-${{ github.ref_name }}.exe
-          echo "Checking for macOS application:"
-          ls -l run-${{ github.ref_name }}.app
+          echo "Listing all files in the current directory:"
+          find .
 
       - name: Create Windows zip file
         shell: pwsh
