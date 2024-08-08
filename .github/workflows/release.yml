@@ -72,6 +72,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: [build-windows, build-macos]
+
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v3
@@ -86,6 +87,7 @@ jobs:
           path: .
 
       - name: Create Windows zip file
+        shell: pwsh
         run: Compress-Archive -Path run-${{ github.ref_name }}.exe -DestinationPath run-${{ github.ref_name }}-windows.zip
 
       - name: Create macOS zip file

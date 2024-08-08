@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build and Release Matrix
 
 on:
   push:
@@ -25,10 +25,12 @@ jobs:
           post-cleanup: all
 
       - name: Upgrade Dependencies
-        run: micromamba run -n geo-env-master pip install --upgrade --no-deps --force-reinstall numpy pyinstaller
+        run: |
+          micromamba run -n geo-env-master pip install --upgrade --no-deps --force-reinstall numpy pyinstaller
 
       - name: Package Application
-        run: micromamba run -n geo-env-master pyinstaller run.spec
+        run: |
+          micromamba run -n geo-env-master pyinstaller run.spec
 
       - name: Rename output file
         run: |
@@ -37,6 +39,7 @@ jobs:
           else
             mv dist/run.app dist/run-${{ github.ref_name }}.app
           fi
+        shell: ${{ matrix.os == 'windows-latest' && 'pwsh' || 'bash' }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
@@ -64,11 +67,14 @@ jobs:
 
       - name: Create Windows zip file
         if: needs.build.result == 'success'
-        run: Compress-Archive -Path run-${{ github.ref_name }}.exe -DestinationPath run-${{ github.ref_name }}-windows.zip
+        run: |
+          Compress-Archive -Path run-${{ github.ref_name }}.exe -DestinationPath run-${{ github.ref_name }}-windows.zip
+        shell: pwsh
 
       - name: Create macOS zip file
         if: needs.build.result == 'success'
-        run: zip -r run-${{ github.ref_name }}-macos.zip run-${{ github.ref_name }}.app
+        run: |
+          zip -r run-${{ github.ref_name }}-macos.zip run-${{ github.ref_name }}.app
 
       - name: Release
         uses: softprops/action-gh-release@v2.0.8
