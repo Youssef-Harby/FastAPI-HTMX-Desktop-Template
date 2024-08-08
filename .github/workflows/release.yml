@@ -86,6 +86,26 @@ jobs:
           name: macos-build
           path: .
 
+      - name: Debug Windows artifact
+        run: |
+          echo "Listing files in the current directory:"
+          ls -l
+          echo "Listing files in the dist directory:"
+          ls -l dist/
+          echo "Checking for Windows executable:"
+          ls -l run-${{ github.ref_name }}.exe
+          ls -l dist/run-${{ github.ref_name }}.exe
+
+      - name: Debug macOS artifact
+        run: |
+          echo "Listing files in the current directory:"
+          ls -l
+          echo "Listing files in the dist directory:"
+          ls -l dist/
+          echo "Checking for macOS application:"
+          ls -l run-${{ github.ref_name }}.app
+          ls -l dist/run-${{ github.ref_name }}.app
+
       - name: Create Windows zip file
         shell: pwsh
         run: Compress-Archive -Path run-${{ github.ref_name }}.exe -DestinationPath run-${{ github.ref_name }}-windows.zip
