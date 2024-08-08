@@ -33,7 +33,7 @@ jobs:
           mv dist/run.exe dist/run-${{ github.ref_name }}.exe
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.3.6
         with:
           name: windows-build
           path: dist/run-${{ github.ref_name }}.exe
@@ -64,7 +64,7 @@ jobs:
           mv dist/run.app dist/run-${{ github.ref_name }}.app
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.3.6
         with:
           name: macos-build
           path: dist/run-${{ github.ref_name }}.app
@@ -75,13 +75,13 @@ jobs:
 
     steps:
       - name: Download Windows artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: windows-build
           path: .
 
       - name: Download macOS artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: macos-build
           path: .
@@ -96,7 +96,9 @@ jobs:
         run: Compress-Archive -Path run-${{ github.ref_name }}.exe -DestinationPath run-${{ github.ref_name }}-windows.zip
 
       - name: Create macOS zip file
-        run: zip -r run-${{ github.ref_name }}-macos.zip run-${{ github.ref_name }}.app
+        run: |
+          mv Contents run-${{ github.ref_name }}.app
+          zip -r run-${{ github.ref_name }}-macos.zip run-${{ github.ref_name }}.app
 
       - name: Release
         uses: softprops/action-gh-release@v2.0.8
