@@ -86,16 +86,6 @@ jobs:
           name: macos-build
           path: .
 
-      - name: Debug Windows artifact
-        run: |
-          echo "Listing files in the current directory:"
-          ls -l
-          echo "Listing files in the dist directory:"
-          ls -l dist/
-          echo "Checking for Windows executable:"
-          ls -l run-${{ github.ref_name }}.exe
-          ls -l dist/run-${{ github.ref_name }}.exe
-
       - name: Debug macOS artifact
         run: |
           echo "Listing files in the current directory:"
